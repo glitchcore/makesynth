@@ -10,13 +10,10 @@
 
 
 import Adsr from 'stagas/adsr';
-import Allpass from 'opendsp/allpass';
-
-import Debug from 'debug';
 
 export default Synth;
 
-function makeSynth(adsrParam, wf) {
+function Synth(adsrParam, wf) {
   var _amp = 0;
   var _freq = 440;
   var synth = {};

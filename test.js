@@ -3,11 +3,15 @@
  * test
  */
 
+import Synth from './index'
 import { sin, saw, ramp, tri, sqr, pulse, noise } from 'opendsp/osc';
+import Allpass from 'opendsp/allpass';
+
+import Debug from 'debug';
 
 var debug = Debug('test');
 
-var synth = [makeSynth({ a: 5 }, sin),makeSynth({ a: 1 }, saw),makeSynth({ a: 1 }, sin)]
+var synth = [Synth({ a: 5 }, sin),Synth({ a: 1 }, saw),Synth({ a: 1 }, sin)]
 
 var ap = Allpass(3000);
 
