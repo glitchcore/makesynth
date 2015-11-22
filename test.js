@@ -26,21 +26,21 @@ var kick = Synth("kick", {a:0.01, s: 26},
                     return Math.sin(67 * env(t*2, 1/4, 28, 1.5));
                   });
 
-var filter = Allpass(3000);
+var filter = Allpass(1000);
 
-var leadPattern = [0, 2, 5];
+var leadPattern = [0, 0, -2, -2, 0, 0, 3, 0];
 var leadIter = 0;
   
 export function dsp(t) {
   
-  if ((3*t + 0  ) % 1   === 0) 
-    lead.play(t, Chords('A')
-                      .map(oct(3))
-                      .map(transpose(leadPattern[leadIter % 3]) ), 30, 1.4);
-  if ((6*t + 0  ) % 1   === 0) bassline.play(t, [30, 37], 15, 1);
-  if ((2*t + 0  ) % 1   === 0) kick.play(t, [1], 30);
+  if ((3*t + 0  )%1===0)
+    lead.play(t, Chords('F#')
+                      .map(oct(4))
+                      .map(transpose(leadPattern[leadIter % leadPattern.length]) ), 30, 1.4);
+  if ((6*t + 0  )%1===0) bassline.play(t, [30, 37].map(transpose(leadPattern[leadIter % leadPattern.length])), 15, 1);
+  if ((2*t + 0  )%1===0) kick.play(t, [1], 30);
 
-  if ((2*t/8 + 0  ) % 1   === 0) {
+  if ((2*t/4 + 0 )%1===0) {
     leadIter++;
   }
   
