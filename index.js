@@ -11,10 +11,14 @@
 import Adsr from 'stagas/adsr';
 import note from 'opendsp/note';
 
+import Debug from 'debug';
 export default Synth;
 
-function Synth(adsrParam, wf) {
+function Synth(name, adsrParam, wf) {
   var synths = [];
+  
+  var debug = Debug('Synth');
+  debug("at start: ", synths);
   
   function playFreqs(t, freqs, amp, dur) {
     var adsr = Adsr(adsrParam);
@@ -28,6 +32,7 @@ function Synth(adsrParam, wf) {
         dur: dur
       });
     });
+    debug("[", name, "] after push:", synths.length);
   }
   
   return {
@@ -36,7 +41,7 @@ function Synth(adsrParam, wf) {
       for(var i = 0; i < synths.length; i++) {
         var synth = synths[i];
         signal += wf(t,synth.freq) * synth.adsr(t) * synth.amp;
-        if(t - synth.t > synth.dur) {
+        if(synth.adsr(t) < 0.01) {
           synths.splice(i, 1);
         }
       }
