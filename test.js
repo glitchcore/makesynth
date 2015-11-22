@@ -12,7 +12,7 @@ var debug = Debug('test');
 /* ====== SYNTH ====== */
 import { sin, saw, ramp, tri, sqr, pulse, noise } from 'opendsp/osc';
 import env from 'opendsp/envelope';
-import Synth from './index';
+import {Synth, oct, transpose} from './index';
 
 var lead = Synth("lead", { a: 5 }, sin);
 var bassline = Synth("bassline", { a: 1 }, saw);
@@ -63,17 +63,4 @@ export function dsp(t) {
   sampler(t);
   return mixer(t);
   
-}
-
-/* ====== UTILS ====== */
-
-function transpose(x) {
-  return function(y) {
-    return x + y;
-  };
-}
-function oct(x) {
-  return function(y) {
-    return x*12 + y;
-  };
 }

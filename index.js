@@ -12,9 +12,8 @@ import Adsr from 'stagas/adsr';
 import note from 'opendsp/note';
 
 import Debug from 'debug';
-export default Synth;
 
-function Synth(name, adsrParam, wf) {
+export function Synth(name, adsrParam, wf) {
   var synths = [];
   
   var debug = Debug('Synth');
@@ -54,5 +53,17 @@ function Synth(name, adsrParam, wf) {
       playFreqs(t, n.map(note), velocity/128, dur);
     }
   }
+}
+
+export function transpose(x) {
+  return function(y) {
+    return x + y;
+  };
+}
+
+export function oct(x) {
+  return function(y) {
+    return x*12 + y;
+  };
 }
 
