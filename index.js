@@ -32,7 +32,7 @@ function Synth(name, adsrParam, wf) {
         dur: dur
       });
     });
-    debug("[", name, "] after push:", synths.length);
+    // debug("[", name, "] after push:", synths.length);
   }
   
   return {
