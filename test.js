@@ -3,24 +3,58 @@
  * test
  */
 
-import Synth from './index'
+import Synth from './index';
+// import oct from './index';
+
 import { sin, saw, ramp, tri, sqr, pulse, noise } from 'opendsp/osc';
 import Allpass from 'opendsp/allpass';
+import env from 'opendsp/envelope';
+
+import Chords from 'stagas/chords';
 
 import Debug from 'debug';
 
 var debug = Debug('test');
 
-var synth = [Synth({ a: 5 }, sin),Synth({ a: 1 }, saw),Synth({ a: 1 }, sin)]
 
-var ap = Allpass(3000);
+var lead = Synth({ a: 5 }, sin);
+var bassline = Synth({ a: 1 }, saw);
 
+var kick = Synth({a:0.01, s: 26},
+                  function(t, freq) {
+                    return Math.sin(67 * env(t*2, 1/4, 28, 1.5));
+                  });
+
+var filter = Allpass(3000);
+
+var leadPattern = [0, 2, 5];
+var leadIter = 0;
+  
 export function dsp(t) {
   
-  if ((2*t + 0  ) % 1   === 0) synth[0].play(50, 30);
-  if ((3*t      ) % 1   === 0) synth[1].play(62, 20);
-  if ((3*t      ) % 1   === 0) synth[2].play(69, 20);
-  
+  if ((3*t + 0  ) % 1   === 0) 
+    lead.play(t, Chords('A')
+                      .map(oct(3))
+                      .map(transpose(leadPattern[leadIter % 3]) ), 30, 1);
+  if ((6*t + 0  ) % 1   === 0) bassline.play(t, [30, 37], 15, 1);
+  if ((2*t + 0  ) % 1   === 0) kick.play(t, [1], 30);
 
-  return synth[0].out(t) + ap.run(synth[1].out(t)) + synth[2].out(t);
+  if ((2*t/8 + 0  ) % 1   === 0) {
+    leadIter++;
+  }
+  
+  return lead.out(t) + 
+         filter.run(bassline.out(t)) +
+         kick.out(t);
+}
+
+function transpose(x) {
+  return function(y) {
+    return x + y;
+  };
+}
+function oct(x) {
+  return function(y) {
+    return x*12 + y;
+  };
 }

@@ -8,36 +8,46 @@
  */
  
 
-
 import Adsr from 'stagas/adsr';
 import note from 'opendsp/note';
 
 export default Synth;
 
 function Synth(adsrParam, wf) {
-  var _amp = 0;
-  var _freq = 440;
-  var synth = {};
-  var _adsr = Adsr(adsrParam);
+  var synths = [];
   
-  function playFreq(freq, amp) {
-    _freq = freq;
-    _amp = amp;
-    _adsr.play(0);
+  function playFreqs(t, freqs, amp, dur) {
+    var adsr = Adsr(adsrParam);
+    adsr.play(0);
+    freqs.forEach(function(freq) {
+      synths.push({
+        amp: amp,
+        adsr: adsr,
+        freq: freq,
+        t: t,
+        dur: dur
+      });
+    });
   }
   
   return {
     out: function (t) {
       var signal = 0;
-      return wf(t,_freq) * _adsr(t) * _amp;
-    }, 
-    playFreq: function (freq, amp) {
-      playFreq(freq, amp);
+      for(var i = 0; i < synths.length; i++) {
+        var synth = synths[i];
+        signal += wf(t,synth.freq) * synth.adsr(t) * synth.amp;
+        if(t - synth.t > synth.dur) {
+          synths.splice(i, 1);
+        }
+      }
+      return signal;
     },
-    play: function (n, velocity) {
-      playFreq(note(n), velocity/128);
+    playFreq: function (t, freqs, amp, dur) {
+      playFreqs(t, freqs, amp, dur);
+    },
+    play: function (t, n, velocity, dur) {
+      playFreqs(t, n.map(note), velocity/128, dur);
     }
   }
 }
-
 
