@@ -10,6 +10,7 @@
 
 
 import Adsr from 'stagas/adsr';
+import note from 'opendsp/note';
 
 export default Synth;
 
@@ -33,8 +34,8 @@ function Synth(adsrParam, wf) {
     playFreq: function (freq, amp) {
       playFreq(freq, amp);
     },
-    play: function (note, velocity) {
-      playFreq(freq, velocity/128);
+    play: function (n, velocity) {
+      playFreq(note(n), velocity/128);
     }
   }
 }
