@@ -3,7 +3,7 @@
  * @module makeSynth
  * @author qanper
  * @org qanper
- * @desc synth factory
+ * @desc synth factory, mixer, utils
  * @license gpl3
  */
  

@@ -61,8 +61,8 @@ function automation(t) {
 
 import Allpass from 'opendsp/allpass';
 
-var filter = Allpass(1000);
-var allpass = function(x) { return filter.run(x); };
+var _allpass = Allpass(1000);
+var allpass = function(x) { return _allpass.run(x); };
 
 var bypass = function(x) { return x; };
 
@@ -80,5 +80,4 @@ export function dsp(t) {
   sampler(t);
   automation(t);
   return mixer.out(t);
-  
 }
