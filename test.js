@@ -12,7 +12,7 @@ var debug = Debug('test');
 /* ====== SYNTH ====== */
 import { sin, saw, ramp, tri, sqr, pulse, noise } from 'opendsp/osc';
 import env from 'opendsp/envelope';
-import {Synth, oct, transpose} from './index';
+import {Synth, oct, transpose, Mixer} from './index';
 
 var lead = Synth("lead", { a: 5 }, sin);
 var bassline = Synth("bassline", { a: 1 }, saw);
@@ -24,18 +24,22 @@ var kick = Synth("kick", {a:0.01, s: 26},
 
 /* ===== SAMPLER ===== */
 import Chords from 'stagas/chords';
+import stringToNote from 'opendsp/note';
 
 var leadPattern = [0, 0, -2, -2, 0, 0, 3, 0];
 var leadIter = 0;
 
 function sampler(t) {
   if ((3*t + 0  )%1===0)
-    lead.play(t, Chords('F#')
+    lead.play(t, [Chords('F#maj9')[leadIter % 3]]
                       .map(oct(4))
                       .map(transpose(leadPattern[leadIter % leadPattern.length]) ), 30, 1.4);
-  if ((6*t + 0  )%1===0) 
-    bassline.play(t, [30, 37]
-                      .map(transpose(leadPattern[leadIter % leadPattern.length])), 15, 1);
+  if ((6*t + 0  )%1===0) {
+    var notes = ['F#2', 'H2'];
+    notes = notes.map(transpose(leadPattern[leadIter % leadPattern.length]));
+    bassline.play(t, notes, 15, 1);
+  }
+    
   if ((2*t + 0  )%1===0)
     kick.play(t, [1], 30);
 
@@ -50,17 +54,17 @@ import Allpass from 'opendsp/allpass';
 
 var filter = Allpass(1000);
 
-function mixer(t) {
-  var out = 0;
-  out += lead.out(t);
-  out += filter.run(bassline.out(t));
-  out += kick.out(t);
-  return  out;
-}
+var mixer = Mixer();
+mixer.addChannel(lead.out);
+mixer.addChannel(kick.out);
+mixer.addChannel(function(t) {
+    return filter.run(bassline.out(t));
+  });
 
 /* ====== PLAYER ===== */
 export function dsp(t) {
   sampler(t);
-  return mixer(t);
+  
+  return mixer.out(t);
   
 }

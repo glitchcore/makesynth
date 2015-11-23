@@ -57,13 +57,44 @@ export function Synth(name, adsrParam, wf) {
 
 export function transpose(x) {
   return function(y) {
+    if ('string' === typeof y) y = stringToNote(y);
     return x + y;
   };
 }
 
 export function oct(x) {
   return function(y) {
+    if ('string' === typeof y) y = stringToNote(y);
     return x*12 + y;
   };
+}
+
+function stringToNote(s){
+  s = s.split('');
+  var octave = parseInt(s[s.length - 1], 10);
+  if (isNaN(octave)) octave = 4;
+  var note = s[0].toLowerCase();
+  var flat = s[1] === 'b';
+  var sharp = s[1] === '#';
+  var notes = 'ccddeffggaab';
+  return notes.indexOf(note) + (octave * 12) + sharp - flat;
+}
+
+export function Mixer() {
+ var channels = [];
+ 
+ return {
+   addChannel: function(channel) {
+     channels.push(channel);
+     return channel;
+   },
+   out: function(t) {
+     var out = 0;
+     channels.forEach(function(channel) { 
+       out += channel(t);
+      });
+      return out;
+   }
+ }
 }
 
