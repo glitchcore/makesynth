@@ -62,13 +62,17 @@ function automation(t) {
 import Allpass from 'opendsp/allpass';
 
 var filter = Allpass(1000);
+var allpass = function(x) { return filter.run(x); };
+
+var bypass = function(x) { return x; };
 
 var mixer = Mixer();
 mixer.addChannel(lead.out, function() {return fadeOn;});
 mixer.addChannel(kick.out, 70);
-mixer.addChannel(function(t) {
-    return filter.run(bassline.out(t));
-  }, function(){return (leadIter > 4 ? 75 : 0) } );
+mixer.addChannel(bassline.out, function(){return (leadIter > 5 ? 75 : 0);})
+     .addEffect(bypass)
+     .addEffect(allpass);
+
 mixer.setMaster(80);
 
 /* ====== PLAYER ===== */

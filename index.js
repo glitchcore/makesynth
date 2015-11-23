@@ -17,7 +17,6 @@ export function Synth(name, adsrParam, wf) {
   var synths = [];
   
   var debug = Debug('Synth');
-  debug("at start: ", synths);
   
   function playFreqs(t, freqs, amp, dur) {
     var adsr = Adsr(adsrParam);
@@ -83,18 +82,32 @@ function stringToNote(s){
 export function Mixer() {
  var channels = [];
  var _master = 1;
+
+ var debug = Debug('Mixer');
+ 
  return {
    addChannel: function(channel, volume) {
      if (typeof(volume) === 'number')
       volume = value(volume);
-     channels.push({func: channel, volume: volume});
-     return channel;
+     var i = channels.push({
+       func: channel,
+       volume: volume,
+       effect: function(x) { return x; }
+     }) - 1;
+     
+     // TODO: add effect chain
+     function addEffect(effect) {
+       channels[i].effect = effect;
+       return {addEffect: addEffect};
+     }
+     
+     return {addEffect: addEffect};
    },
    out: function(t) {
      var out = 0;
      channels.forEach(function(channel) { 
-       out += channel.func(t) * 
-              percentToVal(channel.volume()) * 
+       out += channel.effect(channel.func(t)) * 
+              percentToVal(channel.volume())  * 
               percentToVal(_master());
       });
       return out;
@@ -104,7 +117,7 @@ export function Mixer() {
       volume = value(volume);
      _master = volume;
    }
- }
+ };
 }
 
 function percentToVal(percent) {
