@@ -85,23 +85,34 @@ export function Mixer() {
  var _master = 1;
  return {
    addChannel: function(channel, volume) {
-     channels.push({func: channel, volume: percentToVal(volume)});
+     if (typeof(volume) === 'number')
+      volume = value(volume);
+     channels.push({func: channel, volume: volume});
      return channel;
    },
    out: function(t) {
      var out = 0;
      channels.forEach(function(channel) { 
-       out += channel.func(t) * channel.volume * _master;
+       out += channel.func(t) * 
+              percentToVal(channel.volume()) * 
+              percentToVal(_master());
       });
       return out;
    },
    setMaster: function(volume) {
-     _master = percentToVal(volume);
+     if (typeof(volume) === 'number')
+      volume = value(volume);
+     _master = volume;
    }
  }
 }
 
 function percentToVal(percent) {
- return Math.pow(10, ((percent - 100)/100));
+ return Math.pow(10, ((percent - 100)/50));
 }
 
+function value(x) {
+  return function() {
+    return x;
+  }
+}

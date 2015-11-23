@@ -48,6 +48,15 @@ function sampler(t) {
   }
 }
 
+/* ==== AUTOMATION === */
+var fadeOn = 0;
+
+function automation(t) {
+  if(fadeOn < 75) {
+    fadeOn += 75 / (44100 * 4);
+  }
+}
+
 /* ====== MIXER ====== */
 
 import Allpass from 'opendsp/allpass';
@@ -55,17 +64,17 @@ import Allpass from 'opendsp/allpass';
 var filter = Allpass(1000);
 
 var mixer = Mixer();
-mixer.addChannel(lead.out, 75);
+mixer.addChannel(lead.out, function() {return fadeOn;});
 mixer.addChannel(kick.out, 70);
 mixer.addChannel(function(t) {
     return filter.run(bassline.out(t));
-  }, 85);
+  }, function(){return (leadIter > 4 ? 75 : 0) } );
 mixer.setMaster(80);
 
 /* ====== PLAYER ===== */
 export function dsp(t) {
   sampler(t);
-  
+  automation(t);
   return mixer.out(t);
   
 }
