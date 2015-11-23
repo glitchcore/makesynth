@@ -82,19 +82,26 @@ function stringToNote(s){
 
 export function Mixer() {
  var channels = [];
- 
+ var _master = 1;
  return {
-   addChannel: function(channel) {
-     channels.push(channel);
+   addChannel: function(channel, volume) {
+     channels.push({func: channel, volume: percentToVal(volume)});
      return channel;
    },
    out: function(t) {
      var out = 0;
      channels.forEach(function(channel) { 
-       out += channel(t);
+       out += channel.func(t) * channel.volume * _master;
       });
       return out;
+   },
+   setMaster: function(volume) {
+     _master = percentToVal(volume);
    }
  }
+}
+
+function percentToVal(percent) {
+ return Math.pow(10, ((percent - 100)/100));
 }
 

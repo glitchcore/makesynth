@@ -55,11 +55,12 @@ import Allpass from 'opendsp/allpass';
 var filter = Allpass(1000);
 
 var mixer = Mixer();
-mixer.addChannel(lead.out);
-mixer.addChannel(kick.out);
+mixer.addChannel(lead.out, 75);
+mixer.addChannel(kick.out, 70);
 mixer.addChannel(function(t) {
     return filter.run(bassline.out(t));
-  });
+  }, 85);
+mixer.setMaster(80);
 
 /* ====== PLAYER ===== */
 export function dsp(t) {
